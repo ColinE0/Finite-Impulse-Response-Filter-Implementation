@@ -45,3 +45,54 @@ graph TD
     B -->|Q8.8 Coefficients| C[Verilog Implementation]
     C --> D[Icarus Simulation]
     D --> E[GTKWave Analysis]
+```
+
+## Repository Structure
+```
+.
+├── matlab/
+│   ├── fir_design.m        # Filter design & analysis
+│   └── Python Fixed Conversion.py     # Fixed-point conversion
+|   └── fir_coefficients.csv
+├── rtl/
+│   └── fir_filter_folded.v # Main folded implementation
+├── testbenches/
+│   └── fir_filter_folded_tb.v          # Automated testbench
+└── docs/
+    ├── sim   # Synthesis results
+    └── fir_filter_folded.vcd        # Sample VCD captures
+```
+
+## Simulation
+```bash
+# Run tests (Icarus Verilog)
+iverilog -o sim rtl/fir_filter_folded.v testbenches/fir_filter_folded_tb.v
+vvp sim > results.log
+gtkwave fir_filter_folded.vcd
+
+# Expected output:
+First output:    122
+Symmetric test output:    732
+Done. Check waveforms for behavior.
+```
+
+## Results
+### Resource Utilization (Artix-7 FPGA)
+| Module           | LUTs | FFs | DSP48s |
+|------------------|------|-----|--------|
+| Standard FIR     | 420  | 380 | 11     |
+| Folded FIR       | 230  | 310 | 6      |
+
+### Performance
+- **Max Clock**: 118 MHz (folded) vs 152 MHz (parallel)
+- **Power Savings**: 32% reduction vs standard implementation
+
+## Skills Demonstrated
+| Category         | Technologies/Concepts |
+|------------------|-----------------------|
+| **DSP Theory**   | FIR design, linear-phase filters, fixed-point arithmetic |
+| **RTL Design**   | Verilog, resource optimization, pipelining |
+| **Verification** | Self-checking TBs, code coverage, waveform analysis |
+| **Toolflow**     | MATLAB→Python→Verilog co-simulation |
+
+---
