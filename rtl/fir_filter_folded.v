@@ -27,7 +27,7 @@ module fir_filter_folded #(
       for (i=0; i<=ORDER/2; i=i+1) 
         shift_reg[i] <= 0;
     end else begin
-      // Shift data through the register
+      // Shift data through register
       shift_reg[0] <= data_in;
       for (i=1; i<=ORDER/2; i=i+1)
         shift_reg[i] <= shift_reg[i-1];
@@ -35,7 +35,7 @@ module fir_filter_folded #(
   end
 
   // Folded MAC operation with proper accumulation
-  reg signed [DATA_WIDTH+COEFFICIENTS_WIDTH:0] acc;  // Extra bit for overflow
+  reg signed [DATA_WIDTH+COEFFICIENTS_WIDTH:0] acc;  // Extra bit for an overflow
   reg signed [DATA_WIDTH-1:0] sum_symmetric [0:ORDER/2-1];
   
   always @(posedge clk) begin
@@ -45,14 +45,14 @@ module fir_filter_folded #(
       for (i=0; i<ORDER/2; i=i+1)
         sum_symmetric[i] <= 0;
     end else begin
-      // Pre-calculate the symmetric pairs
+      // Pre-calculate symmetric pairs
       for (i=0; i<ORDER/2; i=i+1)
         sum_symmetric[i] <= shift_reg[i] + shift_reg[ORDER/2 - i];
       
       // Initialize with the center tap
       acc <= $signed(coefficients[ORDER/2]) * $signed(shift_reg[ORDER/2]);
       
-      // Accumulate the symmetric taps
+      // Accumulate symmetric taps
       for (i=0; i<ORDER/2; i=i+1)
         acc <= acc + ($signed(coefficients[i]) * $signed(sum_symmetric[i]));
       

@@ -18,7 +18,7 @@ module fir_filter_folded_tb;
     #20 reset = 0;
     #10; // Wait one clock after reset
 
-    // Test 1: Impulse Response (just check first output)
+    // Test 1: Impulse Response (just checking first output)
     data_in = 16'h0100; // 1.0 in Q8.8
     #10;
     data_in = 0;
@@ -33,12 +33,12 @@ module fir_filter_folded_tb;
     data_in = 0;
     #100;
 
-    // Test 3: Quick symmetric check
+    // Test 3: Symmetric check
     data_in = 100;  #20;
     data_in = -100; #20;
     $display("Symmetric test output: ", data_out);
 
-    // Test 4: Show some outputs
+    // Test 4: Display some outputs
     data_in = 16'h2000; #20;
     data_in = 16'h4000; #20;
     data_in = 16'h0000; #20;
@@ -48,7 +48,7 @@ module fir_filter_folded_tb;
     $finish;
   end
 
-  // Save waveforms
+  // Saving waveforms
   initial begin
     $dumpfile("fir_filter_folded.vcd");
     $dumpvars(0, fir_filter_folded_tb);
