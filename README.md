@@ -68,8 +68,7 @@ graph TD
 
 ## Simulation
 ```bash
-# Run tests (Icarus Verilog)
-# Run Verilog simulation
+# Run Verilog simulation & testbench
 iverilog -o sim rtl/fir_filter_folded.v testbench/fir_filter_folded_tb.v
 vvp sim
 
