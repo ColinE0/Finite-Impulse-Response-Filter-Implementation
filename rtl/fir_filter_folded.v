@@ -12,12 +12,12 @@ module fir_filter_folded #(
   // Coefficient storage for folded symmetric FIR (Q8.8 format)
   // Generated from MATLAB design with unity gain compensation
   wire signed [COEFFICIENTS_WIDTH-1:0] coefficients [0:ORDER/2];
-  assign coefficients[0] = 16'hFEDB;
-  assign coefficients[1] = 16'h0008;
-  assign coefficients[2] = 16'h0015;
-  assign coefficients[3] = 16'h0026;
-  assign coefficients[4] = 16'h0033;
-  assign coefficients[5] = 16'h0038;  // center
+  assign coefficients[0] = 16'hFFE1; // -0.121094
+  assign coefficients[1] = 16'h000D; // 0.050781
+  assign coefficients[2] = 16'h0023; // 0.136719
+  assign coefficients[3] = 16'h003E; // 0.242188
+  assign coefficients[4] = 16'h0054; // 0.328125
+  assign coefficients[5] = 16'h005D; // 0.363281
 
   // Shift register (stores ORDER/2 + 1 samples for folded operation)
   reg signed [DATA_WIDTH-1:0] shift_reg [0:ORDER/2];
@@ -53,7 +53,7 @@ module fir_filter_folded #(
       for (i = 0; i < ORDER/2; i = i + 1)
         acc <= acc + ($signed(coefficients[i]) * $signed(sum_symmetric[i]));
       
-      // Output with proper scaling (Q8.8 -> Q16.0)
+      // Output with proper scaling
       data_out <= acc[23:8];  // Fixed-point scaling adjustment
     end
   end

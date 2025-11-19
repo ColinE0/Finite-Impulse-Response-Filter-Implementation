@@ -7,6 +7,6 @@ coefficients = firpm(order, [0, cutoff, cutoff+0.1, 1], [1, 1, 0, 0]); % Equirip
 coefficients = coefficients'; 
 
 % Export to CSV (correct syntax)
-writematrix(coefficients, 'fir_coeffs.csv'); 
+writematrix(coefficients, 'fir_coefficients.csv'); 
 
-disp('Coefficients saved to fir_coeffs.csv');
+disp('Coefficients saved to fir_coefficients.csv');
