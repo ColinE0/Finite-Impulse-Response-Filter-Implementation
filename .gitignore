@@ -1,0 +1,18 @@
+# Project-generated artifacts
+*.vcd
+*.log
+sim
+test_vectors/
+matlab/fir_coefficients.csv
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor swap files in the event vim is used
+*.swp
+*.swo
