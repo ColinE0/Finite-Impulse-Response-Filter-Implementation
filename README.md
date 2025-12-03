@@ -55,13 +55,14 @@ graph TD
 ```
 .
 ├── matlab/
-│   ├── fir_design.m              # Filter design & coefficient generation
-│   ├── fir_verification.py       # Automated verification system
-│   └── fir_coefficients.csv      # Optimized coefficients
+│   ├── fir_design.m                 # Filter design & coefficient generation
+│   └── fir_coefficients.csv         # Generated coefficients (Q8.8)
+├── python/
+│   └── fir_verification.py          # Automated verification system
 ├── rtl/
-│   └── fir_filter_folded.v       # Folded architecture implementation
+│   └── fir_filter_folded.v          # Folded architecture implementation
 ├── testbench/
-│   └── fir_filter_folded_tb.v    # Comprehensive testbench
+│   └── fir_filter_folded_tb.v       # Comprehensive testbench
 └── docs/
     └── implementation_verification.png  # Performance analysis results
 ```
