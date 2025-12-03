@@ -2,7 +2,7 @@
 
 ![Verilog](https://img.shields.io/badge/Verilog-FF0000?style=flat&logo=verilog)
 ![MATLAB](https://img.shields.io/badge/MATLAB-orange?logo=mathworks)
-![Python](https://img.shields.io/badge/Python-3776AB?logo=python)
+![Python](https://img.shields.io/badge/Python-3776AB)
 ![DSP](https://img.shields.io/badge/DSP-8A2BE2)
 ![FPGA](https://img.shields.io/badge/FPGA-00599C?logo=xilinx)
 
@@ -55,13 +55,14 @@ graph TD
 ```
 .
 ├── matlab/
-│   ├── fir_design.m              # Filter design & coefficient generation
-│   ├── fir_verification.py       # Automated verification system
-│   └── fir_coefficients.csv      # Optimized coefficients
+│   ├── fir_design.m                 # Filter design & coefficient generation
+│   └── fir_coefficients.csv         # Generated coefficients (Q8.8)
+├── python/
+│   └── fir_verification.py          # Automated verification system
 ├── rtl/
-│   └── fir_filter_folded.v       # Folded architecture implementation
+│   └── fir_filter_folded.v          # Folded architecture implementation
 ├── testbench/
-│   └── fir_filter_folded_tb.v    # Comprehensive testbench
+│   └── fir_filter_folded_tb.v       # Comprehensive testbench
 └── docs/
     └── implementation_verification.png  # Performance analysis results
 ```
