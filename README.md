@@ -2,7 +2,7 @@
 
 ![Verilog](https://img.shields.io/badge/Verilog-FF0000?style=flat&logo=verilog)
 ![MATLAB](https://img.shields.io/badge/MATLAB-orange?logo=mathworks)
-![Python](https://img.shields.io/badge/Python-3776AB?logo=python)
+![Python](https://img.shields.io/badge/Python-blue?logo=python&logoColor=white)
 ![DSP](https://img.shields.io/badge/DSP-8A2BE2)
 ![FPGA](https://img.shields.io/badge/FPGA-00599C?logo=xilinx)
 
