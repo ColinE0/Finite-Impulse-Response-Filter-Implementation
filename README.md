@@ -105,18 +105,18 @@ python change.py
 FIR FILTER DESIGN & ANALYSIS TOOL
 ==========================================================
 1. Created test signal with frequencies: 50Hz, 120Hz, 300Hz
-2. Designing FIR filter using Python...
+2. Designing FIR filter using Python
    • Designed 31-tap filter
    • DC gain: 1.0004
 3. Filter Performance:
    • SNR: 42.67 dB
    • MSE: 0.000056
-4. Parameter sweeping: Filter order vs SNR...
+4. Parameter sweeping: Filter order vs SNR
    • Best SNR: 45.23 dB at order 50
-5. Updating Verilog hardware implementation...
-   ✅ Updated 6 coefficients in fir_filter_folded.v
-6. Generating test vectors for verification...
-   ✅ Generated test vectors
+5. Updating Verilog hardware implementation
+    Updated 6 coefficients in fir_filter_folded.v
+6. Generating test vectors for verification
+    Generated test vectors
 7. Spectrum analyzer demonstration...
    [Plots displayed]
 ================
