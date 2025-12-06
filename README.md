@@ -130,7 +130,7 @@ Project Complete
 
 The following plots demonstrate key concepts from this project:
 
-### 1. Homework-Style Spectrum Analysis
+### 1. Spectrum Analysis
 This plot demonstrates zero-padding FFT analysis:
 ![Zero-Padding Analysis](results/zero_padding_comparison.png)
 *Figure 1: Spectrum analysis with different zero-padding levels showing how zero-padding affects frequency resolution.*
