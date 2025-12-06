@@ -1,18 +1,30 @@
-# Project-generated artifacts
-*.vcd
-*.log
-sim
+# Generated test vectors
+*_input.csv
+*_expected.csv
+*_output.csv
+
+# Test vectors (generated files)
 test_vectors/
-matlab/fir_coefficients.csv
+
+# Generated coefficients
+fir_coefficients.csv
 
 # Python cache
 __pycache__/
 *.pyc
 
-# OS-specific files
+# IDE
+.vscode/
+.idea/
+
+# OS
 .DS_Store
 Thumbs.db
 
-# Editor swap files in the event vim is used
-*.swp
-*.swo
+# Virtual environments
+venv/
+env/
+
+# Keep results folder but you can regenerate
+# Uncomment next line if you DON'T want to track generated images:
+# results/*.png

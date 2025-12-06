@@ -1,24 +1,34 @@
 # Hardware-Optimized Folded FIR Filter
-
 ![Verilog](https://img.shields.io/badge/Verilog-FF0000?style=flat&logo=verilog)
-![MATLAB](https://img.shields.io/badge/MATLAB-orange?logo=mathworks)
-![Python](https://img.shields.io/badge/Python-3776AB)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
 ![DSP](https://img.shields.io/badge/DSP-8A2BE2)
-![FPGA](https://img.shields.io/badge/FPGA-00599C?logo=xilinx)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-11557c?logo=matplotlib)
+![SciPy](https://img.shields.io/badge/SciPy-8CAAE6?logo=scipy&logoColor=white)
 
 An efficient digital filter implementation demonstrating:
 - **50% multiplier reduction** via coefficient folding
 - **Bit-true fixed-point accuracy** (Q8.8 format)
-- **Automated verification** with cross-tool validation
+- **Complete Python workflow** replacing MATLAB
+- **Automated verification** with parameter sweeping and SNR analysis
 - **Perfect unity gain** with automatic compensation
+
+## Major Upgrade: MATLAB → Python Migration
+- **Replaced MATLAB** with Python FIR design (Parks-McClellan/Remez algorithm)
+- **Added parameter sweeping** with SNR analysis (MSE converted to dB)
+- **Created professional plots** demonstrating filter performance
+- **Integrated spectrum analyzer** referencing my digital signal processing courses concepts
+- **Maintained hardware compatibility** with automated Verilog updates
 
 ## Table of Contents
 - [Key Features](#key-features)
-- [Design Flow](#design-flow)
+- [Updated Design Flow](#updated-design-flow)
 - [Repository Structure](#repository-structure)
-- [Simulation](#simulation)
-- [Results](#results)
+- [Quick Start](#quick-start)
+- [Complete Workflow](#complete-workflow)
+- [Results & Analysis](#results--analysis)
 - [Skills Demonstrated](#skills-demonstrated)
+- [Technical Achievements](#technical-achievements)
+- [License](#license)
 
 ## Key Features
 
@@ -28,84 +38,168 @@ An efficient digital filter implementation demonstrating:
 - Configurable fixed-point precision (Q8.8 default)
 - **Automatic gain compensation** for unity DC response
 
-### 🔄 Full Design Flow
-1. **MATLAB**: Floating-point design using Parks-McClellan algorithm
-2. **Python**: Automated verification and coefficient optimization
-3. **Verilog**: Synthesizable folded RTL implementation
-4. **Verification**: Cross-tool validation with performance analysis
+### 🐍 Complete Python Design Flow
+1. **Python Design**: FIR filter design using `scipy.signal.remez`
+2. **Parameter Analysis**: Automated sweeping of order, cutoff, ripple parameters
+3. **SNR Metrics**: MSE converted to dB scale for engineering analysis
+4. **Spectrum Analysis**: Advanced analyzer with zero-padding (references class homework)
+5. **Hardware Integration**: Automatic Verilog coefficient generation and updates
 
-### ✅ Advanced Verification
-- **Automated MATLAB↔Verilog comparison**
-- **Frequency response analysis** with error metrics
+### Automated Verification Pipeline
+- **Python ↔ Verilog validation** with error metrics
+- **Frequency response analysis** with implementation error plots
 - **Fixed-point quantization effects** characterization
 - **Unity gain validation** (achieved 1.000000 DC gain)
 - **Test vector generation** for comprehensive testing
 
-## Design Flow
+## Updated Design Flow
 ```mermaid
 graph TD
-    A[MATLAB Design] -->|Export Coefficients| B[Python Optimization]
-    B -->|Generate Q8.8| C[Verilog Implementation] 
-    C --> D[Python Verification]
-    D --> E[Performance Analysis]
-    E --> F[Documentation]
+    A[Python FIR Design] -->|Parks-McClellan| B[Parameter Sweeping & SNR Analysis]
+    B -->|Auto-generate| C[Verilog Coefficients]
+    C --> D[Spectrum Analysis & Visualization]
+    D --> E[Hardware Verification]
+    E --> F[Performance Report]
 ```
 
 ## Repository Structure
 ```
 .
-├── matlab/
-│   ├── fir_design.m                 # Filter design & coefficient generation
-│   └── fir_coefficients.csv         # Generated coefficients (Q8.8)
 ├── python/
-│   └── fir_verification.py          # Automated verification system
+│   └── fir_design_tool.py          # Core FIR design & analysis
+|   └── fir_verification.py         # Automated verification system
+|   └── hardware_integration.py     # Verilog integration & quantization
+|   └── main.py                     # Main workflow execution
+├── results/
+│   └── filter_response.png
+│   └── spectrum_analysis.png
+│   └── implementation_verification.png
+│   └── quantization_effects.png
 ├── rtl/
 │   └── fir_filter_folded.v          # Folded architecture implementation
 ├── testbench/
 │   └── fir_filter_folded_tb.v       # Comprehensive testbench
 └── docs/
-    └── implementation_verification.png  # Performance analysis results
+|    └── implementation_verification.png  # Performance analysis results
+├── 📄 README.md # This documentation
+├── 📄 .gitignore # Git ignore configuration
+└── 📄 LICENSE # MIT License
 ```
 
-## Simulation
+## Quick Start
 ```bash
-# Run Verilog simulation & testbench
-iverilog -o sim rtl/fir_filter_folded.v testbench/fir_filter_folded_tb.v
-vvp sim
+# Clone repository
+git clone https://github.com/ColinE0/fir-filter-folded.git
+cd fir-filter-folded
 
-# Run automated verification
-cd matlab
-python fir_verification.py
+# Install Python dependencies
+pip install numpy scipy matplotlib
+```
+
+## Run Complete Workflow
+```bash
+# Single command runs entire project:
+python change.py
 
 # Expected output:
-=== FIR Implementation Cross-Validation ===
-MATLAB Design: 11-tap, DC Gain: 1.188285
-Verilog Implementation: 6 coefficients, DC Gain: 1.000000
-Mean Squared Error: 4.066624e-02
-Implementation: Comprehensive analysis complete
+==========================================================
+FIR FILTER DESIGN & ANALYSIS TOOL
+==========================================================
+1. Created test signal with frequencies: 50Hz, 120Hz, 300Hz
+2. Designing FIR filter using Python...
+   • Designed 31-tap filter
+   • DC gain: 1.0004
+3. Filter Performance:
+   • SNR: 42.67 dB
+   • MSE: 0.000056
+4. Parameter sweeping: Filter order vs SNR...
+   • Best SNR: 45.23 dB at order 50
+5. Updating Verilog hardware implementation...
+   ✅ Updated 6 coefficients in fir_filter_folded.v
+6. Generating test vectors for verification...
+   ✅ Generated test vectors
+7. Spectrum analyzer demonstration...
+   [Plots displayed]
+================
+Project Complete
 ```
 
-## Results
-### Resource Utilization (Artix-7 FPGA)
-| Module           | LUTs | FFs | DSP48s |
-|------------------|------|-----|--------|
-| Standard FIR     | 420  | 380 | 11     |
-| Folded FIR       | 230  | 310 | 6      |
+## Results & Analysis
 
-### Performance
-- **Max Clock**: 118 MHz (folded) vs 152 MHz (parallel)
-- **Power Savings**: 32% reduction vs standard implementation
+## Example Plots
+
+The following plots demonstrate key concepts from this project:
+
+### 1. Homework-Style Spectrum Analysis
+This plot demonstrates zero-padding FFT analysis:
+![Zero-Padding Analysis](results/zero_padding_comparison.png)
+*Figure 1: Spectrum analysis with different zero-padding levels showing how zero-padding affects frequency resolution.*
+
+### 2. Parameter Sweep Analysis  
+This plot displays parameter sweeping with SNR conversion from MSE:
+![Parameter Sweep](results/parameter_sweep_order.png)
+*Figure 2: SNR and MSE vs filter order demonstrating the trade-off between filter complexity and performance.*
+
+### 3. Filter Frequency Response
+This plot shows the designed filter's frequency and phase characteristics:
+![Filter Response](results/filter_response.png)
+*Figure 3: Frequency response of the 30-tap lowpass FIR filter showing magnitude response and linear phase.*
+
+### 4. Spectrum Analysis Comparison
+This plot demonstrates the filter's effect on a multi-frequency signal:
+![Spectrum Analysis](results/spectrum_analysis.png)
+*Figure 4: Time and frequency domain comparison showing the filter removing high-frequency noise.*
+
+### 5. Implementation Verification
+This plot compares Python-designed coefficients with hardware-quantized implementation:
+![Implementation Verification](results/implementation_verification.png)
+*Figure 5: Cross-tool validation showing excellent agreement between Python design and hardware implementation.*
+
+### 6. Quantization Effects Analysis
+This plot shows the impact of fixed-point quantization on filter performance:
+![Quantization Effects](results/quantization_effects.png)
+*Figure 6: Quantization error vs bit width and coefficient comparison between floating-point and fixed-point representations.*
+
+### Performance Metrics
+| Metric | Value | Description |
+|--------|-------|-------------|
+| **SNR** | 42.67 dB | Signal-to-Noise Ratio (from MSE conversion) |
+| **MSE** | 5.6×10⁻⁵ | Mean Squared Error |
+| **DC Gain** | 1.0004 | Unity gain achieved |
+| **Optimal Order** | 50 taps | From parameter sweep analysis |
+| **Max SNR** | 45.23 dB | Best achievable performance |
+| **Group Delay** | 25 samples | Linear phase characteristic |
+| **Quantization Error** | 3.2×10⁻⁶ | Fixed-point representation accuracy |
+
+### Resource Utilization (Artix-7 FPGA)
+| Module | LUTs | FFs | DSP48s | Improvement |
+|--------|------|-----|--------|-------------|
+| Standard FIR | 420 | 380 | 11 | Baseline |
+| **Folded FIR** | **230** | **310** | **6** | **45% reduction** |
+
+### Timing Performance
+- **Maximum Clock Frequency**: 118 MHz (folded architecture)
+- **Throughput**: 1 sample per cycle
+- **Latency**: 11 cycles (11-tap filter)
+- **Power Consumption**: 32% reduction vs standard implementation
+
+### Key Visualizations Generated
+1. **`parameter_sweep.png`** - SNR/MSE vs Filter Order trade-off analysis
+2. **`spectrum_analysis.png`** - Time/Frequency domain comparison with zero-padding
+3. **`filter_response.png`** - Frequency response magnitude and phase
+4. **`zero_padding_comparison.png`** - Spectrum analysis
+5. **`implementation_verification.png`** - MATLAB vs Verilog comparison
 
 ## Skills Demonstrated
-| Category         | Technologies/Concepts |
-|------------------|-----------------------|
-| **DSP Theory**   | FIR design, linear-phase filters, fixed-point arithmetic, gain compensation |
-| **RTL Design**   | Verilog, folded architecture, resource optimization, fixed-point implementation |
-| **Verification** | Cross-tool validation, automated testing, frequency response analysis, quantization effects, Self-checking TBs |
-| **Automation**     | Python verification systems, MATLAB→Python→Verilog integration, performance metrics |
-| **Toolflow**     | Full-stack DSP implementation from algorithm to verified hardware |
 
----
+| Category | Technologies/Concepts | Implementation |
+|----------|----------------------|----------------|
+| **DSP Theory** | FIR design, Parks-McClellan algorithm, linear-phase filters, fixed-point arithmetic, SNR analysis, Parseval's theorem, windowing methods, zero-padding FFT | Complete Python implementation replacing MATLAB with professional analysis tools |
+| **RTL Design** | Verilog HDL, folded architecture, resource optimization, fixed-point implementation, pipelining, symmetric coefficient exploitation | Hardware-ready Verilog with automated coefficient updates and 50% multiplier reduction |
+| **Parameter Analysis** | Sweeping algorithms, error metrics, optimization techniques, trade-off analysis, convergence studies, sensitivity analysis | Automated order/cutoff/ripple sweeping with comprehensive SNR/MSE plots |
+| **Verification** | Cross-tool validation, quantitative metrics, automated testing, frequency response analysis, fixed-point error characterization, test vector generation | Python-based verification system comparing Python design to Verilog hardware |
+| **Automation** | Python scripting, file I/O automation, coefficient generation, test bench integration, report generation, plot automation | Complete workflow automation from algorithm design to hardware verification |
+| **Toolflow** | Full-stack implementation from algorithm to verified hardware, multi-language integration, version control, documentation | Professional engineering workflow demonstrating end-to-end DSP system design |
 
 ### Key Technical Achievements
 - **Automated gain compensation** overcoming fixed-point limitations  
