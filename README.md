@@ -75,12 +75,11 @@ graph TD
 │   └── spectrum_analysis.png
 │   └── implementation_verification.png
 │   └── quantization_effects.png
+│   └── implementation_verification.png 
 ├── rtl/
 │   └── fir_filter_folded.v          # Folded architecture implementation
 ├── testbench/
 │   └── fir_filter_folded_tb.v       # Comprehensive testbench
-└── docs/
-|    └── implementation_verification.png  # Performance analysis results
 ├── 📄 README.md # This documentation
 ├── 📄 .gitignore # Git ignore configuration
 └── 📄 LICENSE # MIT License
