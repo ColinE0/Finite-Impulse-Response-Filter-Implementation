@@ -11,9 +11,8 @@ warnings.filterwarnings('ignore')
 import os
 
 def design_fir_filter(order, cutoff_freq, fs=1.0, filter_type='lowpass', method='window'):
-    """
-    Design FIR filter coefficients using Python (replaces MATLAB's firpm/fir1)
-    """
+    # Design FIR filter coefficients using Python (replaces MATLAB's firpm/fir1)
+    
     # Normalize frequencies and ensure they're valid
     nyquist = fs / 2
     
@@ -95,10 +94,9 @@ def sweep_filter_parameter(param_name, param_values, test_signal, fs=1000, save_
     return results
 
 def plot_parameter_sweep(results, param_name, param_values, save_dir='results'):
-    """
-    Create and save parameter sweep plots
-    """
-    # Create results directory if it doesn't exist
+    # Create and save parameter sweep plots
+    
+    # Create results directory if it doesn't exist already
     os.makedirs(save_dir, exist_ok=True)
     
     plt.figure(figsize=(12, 5))
@@ -126,9 +124,7 @@ def plot_parameter_sweep(results, param_name, param_values, save_dir='results'):
     print(f"Saved parameter sweep plot: results/parameter_sweep_{param_name}.png")
 
 def plot_frequency_response(coefficients, fs=1000, save_dir='results'):
-    """
-    Plot and save filter frequency response
-    """
+    # Plot and save filter frequency response
     os.makedirs(save_dir, exist_ok=True)
     
     w, h = signal.freqz(coefficients, worN=1024)
@@ -159,88 +155,15 @@ def plot_frequency_response(coefficients, fs=1000, save_dir='results'):
     plt.close()
     print(f"Saved frequency response plot: results/filter_response.png")
 
-def create_homework_style_plot(fs=1000, save_dir='results'):
-    """
-    Create a plot that directly references EE 4377 homework style
-    with zero-padding FFT analysis
-    """
-    os.makedirs(save_dir, exist_ok=True)
-    
-    # Create test signal similar to homework
-    duration = 0.5
-    t = np.arange(0, duration, 1/fs)
-    f1, f2 = 50, 120
-    test_signal = np.sin(2*np.pi*f1*t) + 0.5*np.sin(2*np.pi*f2*t)
-    
-    # Compute spectra with different zero-padding (like homework)
-    N = len(test_signal)
-    
-    # No zero-padding
-    spectrum1 = np.fft.fft(test_signal, N)
-    freq1 = np.fft.fftfreq(N, 1/fs)
-    mag1 = np.abs(spectrum1)[:N//2] * 2 / N
-    
-    # 2x zero-padding
-    nfft2 = 2 * N
-    spectrum2 = np.fft.fft(test_signal, nfft2)
-    freq2 = np.fft.fftfreq(nfft2, 1/fs)
-    mag2 = np.abs(spectrum2)[:nfft2//2] * 2 / N
-    
-    # 8x zero-padding
-    nfft3 = 8 * N
-    spectrum3 = np.fft.fft(test_signal, nfft3)
-    freq3 = np.fft.fftfreq(nfft3, 1/fs)
-    mag3 = np.abs(spectrum3)[:nfft3//2] * 2 / N
-    
-    # Create the plot (homework style)
-    plt.figure(figsize=(12, 8))
-    
-    # Time domain
-    plt.subplot(2, 1, 1)
-    plt.plot(t, test_signal, 'b-', linewidth=1.5, alpha=0.7)
-    plt.xlabel('Time (s)')
-    plt.ylabel('Amplitude')
-    plt.title('Time Domain: Two Sinusoids (EE 4377 Homework Style)')
-    plt.grid(True, alpha=0.3)
-    
-    # Frequency domain with different zero-padding
-    plt.subplot(2, 1, 2)
-    plt.plot(freq1[:N//2], mag1, 'ro-', markersize=4, alpha=0.7, label='No zero-padding')
-    plt.plot(freq2[:nfft2//2], mag2, 'g-', linewidth=1.5, alpha=0.8, label='2x zero-padding')
-    plt.plot(freq3[:nfft3//2], mag3, 'b-', linewidth=1, alpha=0.9, label='8x zero-padding')
-    
-    # Mark expected frequencies (like homework)
-    plt.axvline(x=f1, color='red', linestyle='--', alpha=0.5, label=f'f1={f1}Hz')
-    plt.axvline(x=f2, color='blue', linestyle='--', alpha=0.5, label=f'f2={f2}Hz')
-    
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Magnitude')
-    plt.title('Spectrum with Different Zero-Padding Levels (Homework Reference)')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.xlim(0, 200)
-    
-    plt.tight_layout()
-    plt.savefig(f'{save_dir}/zero_padding_comparison.png', dpi=150, bbox_inches='tight')
-    plt.close()
-    print(f"Saved homework-style plot: results/zero_padding_comparison.png")
-    
-    return test_signal
-
 class SpectrumAnalyzer:
-    """
-    Spectrum analyzer with zero-padding and filter visualization
-    """
-    
+    # Spectrum analyzer with zero-padding and filter visualization
     def __init__(self, signal_data, fs):
         self.signal = signal_data
         self.fs = fs
         self.N = len(signal_data)
         
     def compute_spectrum(self, nfft=None, zero_padding=0):
-        """
-        Compute spectrum with optional zero-padding
-        """
+        # Compute spectrum with optional zero-padding
         if nfft is None:
             nfft = self.N
         
@@ -261,9 +184,7 @@ class SpectrumAnalyzer:
         return positive_freq, positive_magnitude
     
     def analyze_filter_effect(self, coefficients, title="Filter Effect", save_plot=True):
-        """
-        Show how filtering affects the signal spectrum
-        """
+         # Display of how filtering affects the signal spectrum
         filtered = signal.lfilter(coefficients, 1.0, self.signal)
         
         freq_orig, mag_orig = self.compute_spectrum(zero_padding=1024)
@@ -313,8 +234,6 @@ class SpectrumAnalyzer:
             plt.savefig('results/spectrum_analysis.png', dpi=150, bbox_inches='tight')
             plt.close()
             print(f"Saved spectrum analysis plot: results/spectrum_analysis.png")
-        else:
-            plt.show()
         
         snr_db, mse = calculate_snr(self.signal, filtered)
         print(f"Filter Performance: SNR={snr_db:.2f} dB, MSE={mse:.6f}")
