@@ -75,12 +75,11 @@ graph TD
 │   └── spectrum_analysis.png
 │   └── implementation_verification.png
 │   └── quantization_effects.png
+│   └── implementation_verification.png 
 ├── rtl/
 │   └── fir_filter_folded.v          # Folded architecture implementation
 ├── testbench/
 │   └── fir_filter_folded_tb.v       # Comprehensive testbench
-└── docs/
-|    └── implementation_verification.png  # Performance analysis results
 ├── 📄 README.md # This documentation
 ├── 📄 .gitignore # Git ignore configuration
 └── 📄 LICENSE # MIT License
@@ -106,18 +105,18 @@ python change.py
 FIR FILTER DESIGN & ANALYSIS TOOL
 ==========================================================
 1. Created test signal with frequencies: 50Hz, 120Hz, 300Hz
-2. Designing FIR filter using Python...
+2. Designing FIR filter using Python
    • Designed 31-tap filter
    • DC gain: 1.0004
 3. Filter Performance:
    • SNR: 42.67 dB
    • MSE: 0.000056
-4. Parameter sweeping: Filter order vs SNR...
+4. Parameter sweeping: Filter order vs SNR
    • Best SNR: 45.23 dB at order 50
-5. Updating Verilog hardware implementation...
-   ✅ Updated 6 coefficients in fir_filter_folded.v
-6. Generating test vectors for verification...
-   ✅ Generated test vectors
+5. Updating Verilog hardware implementation
+    Updated 6 coefficients in fir_filter_folded.v
+6. Generating test vectors for verification
+    Generated test vectors
 7. Spectrum analyzer demonstration...
    [Plots displayed]
 ================
@@ -130,7 +129,7 @@ Project Complete
 
 The following plots demonstrate key concepts from this project:
 
-### 1. Homework-Style Spectrum Analysis
+### 1. Spectrum Analysis
 This plot demonstrates zero-padding FFT analysis:
 ![Zero-Padding Analysis](results/zero_padding_comparison.png)
 *Figure 1: Spectrum analysis with different zero-padding levels showing how zero-padding affects frequency resolution.*
