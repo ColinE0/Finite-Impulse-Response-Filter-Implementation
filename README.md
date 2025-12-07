@@ -67,7 +67,6 @@ graph TD
 .
 ├── python/
 │   └── fir_design_tool.py          # Core FIR design & analysis
-|   └── fir_verification.py         # Automated verification system
 |   └── hardware_integration.py     # Verilog integration & quantization
 |   └── main.py                     # Main workflow execution
 ├── results/
@@ -98,29 +97,67 @@ pip install numpy scipy matplotlib
 ## Run Complete Workflow
 ```bash
 # Single command runs entire project:
-python change.py
+python main.py
 
 # Expected output:
-==========================================================
-FIR FILTER DESIGN & ANALYSIS TOOL
-==========================================================
-1. Created test signal with frequencies: 50Hz, 120Hz, 300Hz
-2. Designing FIR filter using Python
-   • Designed 31-tap filter
-   • DC gain: 1.0004
-3. Filter Performance:
-   • SNR: 42.67 dB
-   • MSE: 0.000056
-4. Parameter sweeping: Filter order vs SNR
-   • Best SNR: 45.23 dB at order 50
-5. Updating Verilog hardware implementation
-    Updated 6 coefficients in fir_filter_folded.v
-6. Generating test vectors for verification
-    Generated test vectors
-7. Spectrum analyzer demonstration...
-   [Plots displayed]
-================
-Project Complete
+===================================
+FIR Filter Design & Analysis Tool
+===================================
+
+1. Creating test signal
+   Created SpectrumAnalyzer with 500 samples
+
+2. Designing FIR filter
+    Designed 31-tap FIR filter
+    Cutoff: 100Hz, Sampling: 1000Hz
+    DC Gain: 1.0000
+    First 5 coefficients: [0.     0.0012 0.0028 0.0042 0.0039]
+    Last 5 coefficients: [0.0039 0.0042 0.0028 0.0012 0.    ]
+    Symmetric: True
+    Linear phase: Yes
+
+3. Analyzing filter effect with SpectrumAnalyzer
+Saved spectrum analysis plot: results/spectrum_analysis.png
+Filter Performance: SNR=-2.43 dB, MSE=1.091079
+
+4. Creating parameter sweep plots
+Saved parameter sweep plot: results/parameter_sweep_order.png
+Saved parameter sweep plot: results/parameter_sweep_cutoff.png
+
+5. Creating spectrum analysis plot
+Saved spectrum analysis plot: results/spectrum_analysis.png
+Filter Performance: SNR=-2.31 dB, MSE=1.146981
+
+6. Implementation verification using SpectrumAnalyzer
+Saved spectrum analysis plot: results/spectrum_analysis.png
+Filter Performance: SNR=-2.27 dB, MSE=1.150882
+   Quantization error: 0.000000
+   Hardware coefficients ready for Verilog
+
+7. Updating Verilog hardware
+Updated 6 coefficients in [Your Verilog Path]
+
+8. Generating test vectors
+Generated test vectors in test_vectors/ directory
+
+==============================
+Plots Generated Successfully
+==============================
+
+Generated files in 'results/' directory:
+1. zero_padding_comparison.png - FFT analysis
+2. filter_response.png - Filter frequency & phase response
+3. parameter_sweep_order.png - SNR/MSE vs filter order
+4. parameter_sweep_cutoff.png - SNR/MSE vs cutoff frequency
+5. spectrum_analysis.png - Complete filter effect analysis
+6. implementation_verification.png - Python vs Hardware comparison
+
+Summary:
+• Python filter: 31 taps
+• Hardware coefficients: 6 folded values
+• All plots saved to 'results/' directory
+
+See README.md for project documentation and analysis.
 ```
 
 ## Results & Analysis
