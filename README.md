@@ -42,7 +42,7 @@ An efficient digital filter implementation demonstrating:
 1. **Python Design**: FIR filter design using `scipy.signal.remez`
 2. **Parameter Analysis**: Automated sweeping of order, cutoff, ripple parameters
 3. **SNR Metrics**: MSE converted to dB scale for engineering analysis
-4. **Spectrum Analysis**: Advanced analyzer with zero-padding (references class homework)
+4. **Spectrum Analysis**: Advanced analyzer with zero-padding
 5. **Hardware Integration**: Automatic Verilog coefficient generation and updates
 
 ### Automated Verification Pipeline
