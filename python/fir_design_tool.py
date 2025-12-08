@@ -28,19 +28,18 @@ def design_fir_filter(order, cutoff_freq, fs=1.0, filter_type='lowpass', method=
     
     normalized_cutoff = [f / nyquist for f in cutoff_freq]
     
-    # Always use window method for reliability
     if filter_type == 'lowpass':
         coefficients = signal.firwin(order + 1, normalized_cutoff[0], 
-                                    window='hamming', fs=2)
+                                    window='hamming')
     elif filter_type == 'highpass':
         coefficients = signal.firwin(order + 1, normalized_cutoff[0],
-                                    window='hamming', pass_zero=False, fs=2)
+                                    window='hamming', pass_zero=False)
     elif filter_type == 'bandpass':
         coefficients = signal.firwin(order + 1, normalized_cutoff,
-                                    window='hamming', pass_zero=False, fs=2)
+                                    window='hamming', pass_zero=False)
     else:  # bandstop
         coefficients = signal.firwin(order + 1, normalized_cutoff,
-                                    window='hamming', pass_zero=True, fs=2)
+                                    window='hamming', pass_zero=True)
     
     return coefficients
 

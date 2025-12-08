@@ -6,9 +6,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 from scipy import signal
-import sys
 
 
 # Import our modules
