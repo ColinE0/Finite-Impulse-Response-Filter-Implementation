@@ -1,121 +1,70 @@
+// fir_filter_folded_tb.v
+// Self-checking testbench. Verifies:
+//   1. unity DC gain: a held 1.0 input settles to a 1.0 output
+//   2. impulse response is symmetric and sums to 1.0 (linear-phase, unity gain)
+// Prints RESULT: PASS only if every check holds.
+
 `timescale 1ns/1ps
 
 module fir_filter_folded_tb;
-  reg clk, reset;
-  reg signed [15:0] data_in;
-  wire signed [15:0] data_out;
+    localparam TAPS = 11;
 
-  // Instantiate Device Under Test
-  fir_filter_folded dut (
-    .clk(clk),
-    .reset(reset), 
-    .data_in(data_in),
-    .data_out(data_out)
-  );
+    reg                clk = 0;
+    reg                reset = 1;
+    reg  signed [15:0] data_in = 0;
+    wire signed [15:0] data_out;
 
-  // 100 MHz Clock Generation
-  always #5 clk = ~clk;
+    integer i, s, isum, errors = 0;
+    reg signed [15:0] resp [0:TAPS-1];
 
-  // Comprehensive Test Sequence
-  initial begin
-    // Initialize signals
-    clk = 0;
-    reset = 1;
-    data_in = 0;
-    
-    $display("=== FIR Filter Folded Architecture Test ===");
-    $display("");
-    
-    // Reset sequence
-    #20 reset = 0;
-    #10; // Wait one clock after reset
-    
-    $display("Time\tInput\t\tOutput\t\tDescription");
-    $display("----------------------------------------------------");
+    fir_filter_folded dut (.clk(clk), .reset(reset), .data_in(data_in), .data_out(data_out));
 
-    // Test 1: Unity Gain Verification (DC Input)
-    $display("");
-    $display("TEST 1: Unity Gain Verification");
-    data_in = 16'h0100; // 1.0 in Q8.8 format
-    #150; // Wait for filter to settle
-    
-    if (data_out >= 16'h00F0 && data_out <= 16'h0110) begin
-      $display("PASS: Input=%h, Output=%h (Unity gain verified)", data_in, data_out);
-    end else begin
-      $display("FAIL: Input=%h, Output=%h (Gain issue)", data_in, data_out);
+    always #5 clk = ~clk;
+
+    initial begin
+        $dumpfile("fir_filter_folded.vcd");
+        $dumpvars(0, fir_filter_folded_tb);
+        $display("=== FIR Filter (folded) self-checking test ===");
+
+        // Reset
+        @(negedge clk); @(negedge clk); reset = 0;
+
+        // Test 1: unity DC gain
+        data_in = 16'sh0100;                 // 1.0 in Q8.8
+        repeat (TAPS+4) @(negedge clk);
+        if (data_out >= 16'sh00FF && data_out <= 16'sh0101)
+            $display("PASS Test 1 (unity DC gain): data_out = %0d (expected 256)", data_out);
+        else begin
+            errors = errors + 1;
+            $display("FAIL Test 1 (unity DC gain): data_out = %0d (expected 256)", data_out);
+        end
+
+        // Test 2: impulse response symmetry and sum
+        reset = 1; @(negedge clk); @(negedge clk); reset = 0;
+        data_in = 16'sh0100;                 // one-cycle impulse
+        @(negedge clk);
+        data_in = 0;
+        for (s = 0; s < TAPS; s = s + 1) begin
+            @(negedge clk);
+            resp[s] = data_out;              // 1-cycle latency captured across TAPS samples
+        end
+        for (i = 0; i < TAPS; i = i + 1)
+            if (resp[i] !== resp[TAPS-1-i]) begin
+                errors = errors + 1;
+                $display("FAIL Test 2 (symmetry): resp[%0d]=%0d != resp[%0d]=%0d",
+                         i, resp[i], TAPS-1-i, resp[TAPS-1-i]);
+            end
+        isum = 0;
+        for (i = 0; i < TAPS; i = i + 1) isum = isum + resp[i];
+        if (isum === 256)
+            $display("PASS Test 2 (impulse symmetric, sum = %0d)", isum);
+        else begin
+            errors = errors + 1;
+            $display("FAIL Test 2 (impulse sum = %0d, expected 256)", isum);
+        end
+
+        if (errors == 0) $display("RESULT: PASS (all checks)");
+        else             $display("RESULT: FAIL (%0d errors)", errors);
+        #20 $finish;
     end
-
-    // Test 2: Impulse Response
-    $display("");
-    $display("TEST 2: Impulse Response");
-    data_in = 16'h0100; // Impulse of 1.0
-    #10;
-    data_in = 0;
-    
-    // Monitor impulse response progression
-    #20 $display("   T+20ns: Output = %h (Expected: rising edge)", data_out);
-    #20 $display("   T+40ns: Output = %h", data_out);
-    #20 $display("   T+60ns: Output = %h", data_out);
-    #20 $display("   T+80ns: Output = %h (Expected: peak response)", data_out);
-
-    // Test 3: Linearity Check (Different Amplitudes)
-    $display("");
-    $display("TEST 3: Linearity Verification");
-    
-    data_in = 16'h0080; // 0.5 in Q8.8
-    #100;
-    $display("   Input=0.5 (%h): Output=%h", data_in, data_out);
-    
-    data_in = 16'h0200; // 2.0 in Q8.8  
-    #100;
-    $display("   Input=2.0 (%h): Output=%h", data_in, data_out);
-    
-    data_in = 16'h0000; // Return to zero
-    #50;
-
-    // Test 4: Symmetric Response Check
-    $display("");
-    $display("TEST 4: Symmetric Response");
-    data_in = 16'h0100;  // Positive input
-    #50;
-    $display("   Positive input: Output=%h", data_out);
-    
-    data_in = 16'hFF00;  // Negative input (-1.0 in Q8.8)
-    #50;
-    $display("   Negative input: Output=%h", data_out);
-
-    // Test 5: Final Gain Accuracy
-    $display("");
-    $display("TEST 5: Final Gain Accuracy");
-    data_in = 16'h0180; // 1.5 in Q8.8
-    #150; // Settling time
-    
-    if (data_out >= 16'h0170 && data_out <= 16'h0190) begin
-      $display("PASS: Gain accuracy within 2%% tolerance");
-      $display("   Input=1.5 (%h), Output=%h", data_in, data_out);
-    end else begin
-      $display("FAIL: Gain accuracy outside tolerance");
-      $display("   Input=1.5 (%h), Output=%h", data_in, data_out);
-    end
-
-    // Summary
-    $display("");
-    $display("=== TEST SEQUENCE COMPLETE ===");
-    $display("All tests executed. Check waveforms for detailed analysis.");
-    #100;
-    $finish;
-  end
-
-  // VCD Waveform Dumping for Analysis
-  initial begin
-    $dumpfile("fir_filter_folded.vcd");
-    $dumpvars(0, fir_filter_folded_tb);
-  end
-  
-  // Monitor for unexpected behavior
-  always @(posedge clk) begin
-    if (!reset && (data_out === 16'bX || data_out === 16'bZ)) begin
-      $display("WARNING: Invalid output detected at time %t", $time);
-    end
-  end
 endmodule
