@@ -9,6 +9,9 @@ test_vectors/
 # Generated coefficients
 fir_coefficients.csv
 
+# Simulation waveforms
+*.vcd
+
 # Python cache
 __pycache__/
 *.pyc
