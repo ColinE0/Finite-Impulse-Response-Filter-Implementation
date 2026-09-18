@@ -59,7 +59,8 @@ def calculate_snr(original, filtered):
     
     return snr_db, mse
 
-def sweep_filter_parameter(param_name, param_values, test_signal, fs=1000, save_plots=True):
+def sweep_filter_parameter(param_name, param_values, test_signal, fs=1000, save_plots=True,
+                           order=10, cutoff_freq=150):
     """
     Sweep a filter parameter and compute performance metrics
     """
@@ -73,11 +74,11 @@ def sweep_filter_parameter(param_name, param_values, test_signal, fs=1000, save_
     
     for param in param_values:
         if param_name == 'order':
-            coefficients = design_fir_filter(param, 0.2, fs)
+            coefficients = design_fir_filter(param, cutoff_freq, fs)
         elif param_name == 'cutoff':
-            coefficients = design_fir_filter(30, param, fs)
+            coefficients = design_fir_filter(order, param, fs)
         else:
-            coefficients = design_fir_filter(30, 0.2, fs)
+            raise ValueError("Parameter must be 'order' or 'cutoff'")
         
         filtered = signal.lfilter(coefficients, 1.0, test_signal)
         snr_db, mse = calculate_snr(test_signal, filtered)

@@ -6,15 +6,17 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-from scipy import signal
 
 
 # Import our modules
 from fir_design_tool import (
-    design_fir_filter, calculate_snr, sweep_filter_parameter, 
-    SpectrumAnalyzer, plot_frequency_response, plot_parameter_sweep,
+    design_fir_filter, sweep_filter_parameter,
+    SpectrumAnalyzer, plot_frequency_response,
 )
-from hardware_integration import update_verilog_file, generate_test_vectors
+from hardware_integration import (
+    update_verilog_file, generate_test_vectors, verify_hardware,
+    quantize_coefficients, plot_quantization_effects,
+)
 
 def find_project_root():
     """Find the project root directory"""
@@ -41,10 +43,13 @@ def create_all_plots():
     print("="*35)
     
     fs = 1000
+    order = 10
+    cutoff = 150
+    rng = np.random.default_rng(0)
     
     # 1. Create test signal
     print("\n1. Creating test signal")
-    t = np.linspace(0, 0.5, fs//2)
+    t = np.arange(fs//2) / fs
     f1, f2 = 50, 120
     test_signal = np.sin(2*np.pi*f1*t) + 0.5*np.sin(2*np.pi*f2*t)
     
@@ -55,87 +60,90 @@ def create_all_plots():
     # 2. Design filter
     print("\n2. Designing FIR filter")
     coefficients = design_fir_filter(
-        order=30, 
-        cutoff_freq=100,
+        order=order,
+        cutoff_freq=cutoff,
         fs=fs, 
         filter_type='lowpass',
         method='window'
     )
     
     print(f"    Designed {len(coefficients)}-tap FIR filter")
-    print(f"    Cutoff: 100Hz, Sampling: {fs}Hz")
+    print(f"    Cutoff: {cutoff}Hz, Sampling: {fs}Hz")
     print(f"    DC Gain: {np.sum(coefficients):.4f}")
     print(f"    First 5 coefficients: {coefficients[:5].round(4)}")
     print(f"    Last 5 coefficients: {coefficients[-5:].round(4)}")
     print(f"    Symmetric: {np.allclose(coefficients, coefficients[::-1])}")
     print(f"    Linear phase: {'Yes' if np.allclose(coefficients, coefficients[::-1]) else 'No'}")
+    plot_frequency_response(coefficients, fs)
     
     
     # 3. Use SpectrumAnalyzer to analyze filter effect
     print("\n3. Analyzing filter effect with SpectrumAnalyzer")
-    filtered_signal = analyzer.analyze_filter_effect(
+    analyzer.analyze_filter_effect(
         coefficients, 
         title="Lowpass Filter: Removing High-Frequency Noise",
         save_plot=True
     )
+
+    plt.figure(figsize=(10, 5))
+    for padding in (0, 512, 2048):
+        freq, magnitude = analyzer.compute_spectrum(zero_padding=padding)
+        plt.plot(freq, magnitude, label=f'{padding} zeros')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Amplitude')
+    plt.title('Zero-padding Comparison')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('results/zero_padding_comparison.png', dpi=150)
+    plt.close()
     
     # 4. Create parameter sweep plots
     print("\n4. Creating parameter sweep plots")
     
     # Create a more complex test signal for parameter sweeping
-    t = np.linspace(0, 1, fs)
+    t = np.arange(fs) / fs
     f1, f2, f_noise = 50, 120, 250
     complex_signal = (
         np.sin(2*np.pi*f1*t) + 
         0.5*np.sin(2*np.pi*f2*t) + 
         0.3*np.sin(2*np.pi*f_noise*t) + 
-        0.1*np.random.randn(len(t))
+        0.1*rng.standard_normal(len(t))
     )
     
     # Sweep filter orders
     orders = [10, 20, 30, 40, 50, 60]
-    order_results = sweep_filter_parameter('order', orders, complex_signal, fs, save_plots=True)
+    sweep_filter_parameter('order', orders, complex_signal, fs, save_plots=True,
+                           order=order, cutoff_freq=cutoff)
     
     # Sweep cutoff frequencies
     cutoffs = [50, 100, 150, 200, 250]
-    cutoff_results = sweep_filter_parameter('cutoff', cutoffs, complex_signal, fs, save_plots=True)
+    sweep_filter_parameter('cutoff', cutoffs, complex_signal, fs, save_plots=True,
+                           order=order, cutoff_freq=cutoff)
     
     # 5. Create spectrum analysis plot
     print("\n5. Creating spectrum analysis plot")
     analyzer = SpectrumAnalyzer(complex_signal, fs)
     analyzer.analyze_filter_effect(coefficients, "Lowpass Filter Effect", save_plot=True)
     
-    # 6. Create implementation verification plot
-    print("\n6. Implementation verification using SpectrumAnalyzer")
-    # Create a more complex test signal
-    t = np.linspace(0, 0.5, fs//2)
-    test_complex = (
-        np.sin(2*np.pi*50*t) +                    # Desired signal 1
-        0.5*np.sin(2*np.pi*120*t) +               # Desired signal 2  
-        0.3*np.sin(2*np.pi*250*t) +               # Noise to be filtered
-        0.1*np.random.randn(len(t))               # Random noise
-    )
-
-    analyzer = SpectrumAnalyzer(test_complex, fs)
-    filtered = analyzer.analyze_filter_effect(
-        coefficients,
-        title="Lowpass Filter: Python Design Verification",
-        save_plot=True
-    )
-
-    # Quantization effects (hardware verification)
-    from hardware_integration import quantize_coefficients
-    quantized, hw_float, q_error = quantize_coefficients(coefficients[:6])
-    print(f"   Quantization error: {q_error:.6f}")
-    print(f"   Hardware coefficients ready for Verilog")
+    # 6. Quantize the complete response and compensate the center tap
+    print("\n6. Quantization effects")
+    quantized, hw_float, q_error = quantize_coefficients(coefficients, unity_gain=True)
+    print(f"   Quantization error: {q_error:.8f}")
+    print(f"   Hardware DC Gain: {np.sum(hw_float):.6f}")
+    plot_quantization_effects(coefficients)
     
     # 7. Update hardware with new coefficients
     print("\n7. Updating Verilog hardware")
-    hw_coeffs = update_verilog_file(coefficients[:6], VERILOG_PATH)
+    hw_coeffs = update_verilog_file(coefficients, VERILOG_PATH)
     
     # 8. Generate test vectors
     print("\n8. Generating test vectors")
-    generate_test_vectors(coefficients, fs, output_dir='test_vectors')
+    sample_count = generate_test_vectors(coefficients, fs, output_dir='test_vectors')
+
+    # 9. Compile and simulate the exported RTL against the integer reference
+    print("\n9. Verifying Verilog hardware")
+    verify_hardware(VERILOG_PATH, 'test_vectors', sample_count)
+    verify_hardware(VERILOG_PATH, 'test_vectors', sample_count, coeff_width=24, save_dir=None)
     
     print("\n" + "="*30)
     print("Plots Generated Successfully")
@@ -147,6 +155,7 @@ def create_all_plots():
     print("4. parameter_sweep_cutoff.png - SNR/MSE vs cutoff frequency")
     print("5. spectrum_analysis.png - Complete filter effect analysis")
     print("6. implementation_verification.png - Python vs Hardware comparison")
+    print("7. quantization_effects.png - Fixed-point precision")
     
     return coefficients, hw_coeffs
 

@@ -7,8 +7,8 @@
 module fir_filter_folded #(
     parameter DATA_WIDTH  = 16,   // Q8.8 samples
     parameter COEFF_WIDTH = 16,   // Q8.8 coefficients
-    parameter TAPS        = 11,   // odd, symmetric
-    parameter FRAC        = 8     // fractional bits (Q8.8)
+    parameter TAPS        = 11,   // fixed by the coefficient bank below
+    parameter FRAC        = 8     // fixed by the Q8.8 coefficient bank
 )(
     input  wire                          clk,
     input  wire                          reset,    // synchronous, active high
@@ -20,12 +20,18 @@ module fir_filter_folded #(
     // Symmetric coefficients c[0..HALF], c[HALF] is the center. Q8.8.
     // Full 11-tap response = {c0,c1,c2,c3,c4,c5,c4,c3,c2,c1,c0}, sum = 256 -> unity DC gain.
     wire signed [COEFF_WIDTH-1:0] c [0:HALF];
-    assign c[0] = 16'hFFFF;   //  -1
-    assign c[1] = 16'hFFFE;   //  -2
-    assign c[2] = 16'h0003;   //   3
-    assign c[3] = 16'h001B;   //  27
-    assign c[4] = 16'h003E;   //  62
-    assign c[5] = 16'h004E;   //  78  (center)
+    assign c[0] = 16'shFFFF;   // -1
+    assign c[1] = 16'shFFFE;   // -2
+    assign c[2] = 16'sh0003;   // 3
+    assign c[3] = 16'sh001B;   // 27
+    assign c[4] = 16'sh003E;   // 62
+    assign c[5] = 16'sh004E;   // 78 (center)
+
+    // The coefficient bank is 11 taps in Q8.8. Widening preserves the signed values.
+    initial begin
+        if (TAPS != 11 || FRAC != 8 || COEFF_WIDTH < 16 || DATA_WIDTH < 1)
+            $fatal(1, "Use TAPS=11, FRAC=8, COEFF_WIDTH>=16, and DATA_WIDTH>=1");
+    end
 
     // Full delay line: x[0] = newest sample ... x[TAPS-1] = oldest.
     reg signed [DATA_WIDTH-1:0] x [0:TAPS-1];

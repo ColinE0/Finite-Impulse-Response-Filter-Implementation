@@ -13,13 +13,24 @@ module fir_filter_folded_tb;
     reg                reset = 1;
     reg  signed [15:0] data_in = 0;
     wire signed [15:0] data_out;
+    wire signed [15:0] wide_out;
 
     integer i, s, isum, errors = 0;
     reg signed [15:0] resp [0:TAPS-1];
 
     fir_filter_folded dut (.clk(clk), .reset(reset), .data_in(data_in), .data_out(data_out));
+    fir_filter_folded #(.COEFF_WIDTH(24)) wide (
+        .clk(clk), .reset(reset), .data_in(data_in), .data_out(wide_out)
+    );
 
     always #5 clk = ~clk;
+
+    // Widening the coefficient storage must preserve the signed tap values.
+    always @(negedge clk)
+        if (!reset && data_out !== wide_out) begin
+            errors = errors + 1;
+            $display("FAIL (coefficient width): normal=%0d wide=%0d", data_out, wide_out);
+        end
 
     initial begin
         $dumpfile("fir_filter_folded.vcd");
@@ -63,8 +74,16 @@ module fir_filter_folded_tb;
             $display("FAIL Test 2 (impulse sum = %0d, expected 256)", isum);
         end
 
+        // Test 3: a one-LSB DC input also exposes incorrectly extended coefficients.
+        data_in = 16'sd1;
+        repeat (TAPS+4) @(negedge clk);
+        if (data_out !== 16'sd1 || wide_out !== 16'sd1) begin
+            errors = errors + 1;
+            $display("FAIL Test 3 (one-LSB DC): normal=%0d wide=%0d", data_out, wide_out);
+        end
+
         if (errors == 0) $display("RESULT: PASS (all checks)");
-        else             $display("RESULT: FAIL (%0d errors)", errors);
+        else             $fatal(1, "RESULT: FAIL (%0d errors)", errors);
         #20 $finish;
     end
 endmodule
